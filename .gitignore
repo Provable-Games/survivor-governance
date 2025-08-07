@@ -1,0 +1,7 @@
+target/
+.tool-versions
+.snfoundry_cache/
+argent_account.json
+.env
+CLAUDE.md
+test_plan.md

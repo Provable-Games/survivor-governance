@@ -1,0 +1,22 @@
+[package]
+name = "survivor_governance"
+version = "0.0.1"
+edition = "2024_07"
+
+[dependencies]
+starknet = "2.11.4"
+openzeppelin_token = "2.0.0"
+openzeppelin_governance = "2.0.0"
+openzeppelin_utils = "2.0.0"
+openzeppelin_introspection = "2.0.0"
+openzeppelin_access = "2.0.0"
+
+[dev-dependencies]
+snforge_std = "0.46.0"
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
+
+[scripts]
+test = "snforge test"
