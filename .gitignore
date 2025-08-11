@@ -5,3 +5,6 @@ argent_account.json
 .env
 CLAUDE.md
 test_plan.md
+deployments/
+argent_account_mainnet.json
+argent_account_sepolia.json
