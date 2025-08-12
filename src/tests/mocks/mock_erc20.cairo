@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub mod MockERC20 {
-    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -14,14 +14,14 @@ pub mod MockERC20 {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {}
 
         fn after_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {}
     }
 

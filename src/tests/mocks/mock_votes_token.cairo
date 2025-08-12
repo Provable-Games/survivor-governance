@@ -1,9 +1,9 @@
 #[starknet::contract]
 pub mod MockVotesToken {
     use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
-    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -64,9 +64,7 @@ pub mod MockVotesToken {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState, initial_supply: u256, recipient: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, initial_supply: u256, recipient: ContractAddress) {
         self.erc20.initializer("MockVotesToken", "MVT");
         self.erc20.mint(recipient, initial_supply);
     }

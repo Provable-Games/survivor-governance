@@ -1,40 +1,39 @@
+use core::serde::Serde;
 use openzeppelin_governance::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 use openzeppelin_token::erc20::interface::{
     IERC20Dispatcher, IERC20DispatcherTrait, IERC20MetadataDispatcher,
     IERC20MetadataDispatcherTrait,
 };
 use snforge_std::{
-    ContractClassTrait, DeclareResultTrait, declare, start_cheat_caller_address,
-    stop_cheat_caller_address, start_cheat_block_timestamp, stop_cheat_block_timestamp,
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_timestamp,
+    start_cheat_caller_address, stop_cheat_block_timestamp, stop_cheat_caller_address,
 };
-use core::serde::Serde;
 use starknet::ContractAddress;
-use starknet::contract_address::contract_address_const;
 
 fn OWNER() -> ContractAddress {
-    contract_address_const::<'OWNER'>()
+    'OWNER'.try_into().unwrap()
 }
 
 fn USER1() -> ContractAddress {
-    contract_address_const::<'USER1'>()
+    'USER1'.try_into().unwrap()
 }
 
 fn USER2() -> ContractAddress {
-    contract_address_const::<'USER2'>()
+    'USER2'.try_into().unwrap()
 }
 
 fn deploy_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
     let initial_supply: u256 = 1000000 * 1000000000000000000; // 1M tokens with 18 decimals
-    
+
     // Use string literals that will be auto-converted to ByteArray
     let token_name: ByteArray = "Survivor Coin";
     let token_symbol: ByteArray = "SURVIVOR";
-    
+
     let mut constructor_calldata = array![];
     // Serialize ByteArray for token_name
     token_name.serialize(ref constructor_calldata);
-    // Serialize ByteArray for token_symbol  
+    // Serialize ByteArray for token_symbol
     token_symbol.serialize(ref constructor_calldata);
     // initial_supply
     constructor_calldata.append(initial_supply.low.into());
@@ -97,7 +96,7 @@ fn test_token_approve_and_transfer_from() {
     assert!(erc20.balance_of(OWNER()) == 997000 * 1000000000000000000, "Wrong OWNER balance");
     assert!(
         erc20.allowance(OWNER(), USER1()) == 2000 * 1000000000000000000,
-        "Wrong remaining allowance"
+        "Wrong remaining allowance",
     );
 }
 
@@ -125,7 +124,7 @@ fn test_voting_power_delegation() {
 
     // Voting power should decrease
     assert!(
-        votes.get_votes(OWNER()) == 900000 * 1000000000000000000, "Wrong voting power after xfer"
+        votes.get_votes(OWNER()) == 900000 * 1000000000000000000, "Wrong voting power after xfer",
     );
 
     // USER1 delegates to themselves
@@ -154,7 +153,7 @@ fn test_voting_power_delegation_to_others() {
 
     // USER2 should have USER1's voting power
     assert!(
-        votes.get_votes(USER2()) == 200000 * 1000000000000000000, "Wrong delegated voting power"
+        votes.get_votes(USER2()) == 200000 * 1000000000000000000, "Wrong delegated voting power",
     );
     assert!(votes.get_votes(USER1()) == 0, "USER1 should have no votes");
 
@@ -169,10 +168,9 @@ fn test_mint_and_burn() {
 
     let _initial_supply = erc20.total_supply();
     let _mint_amount = 50000 * 1000000000000000000;
-
     // Note: Standard ERC20 doesn't have mint/burn in the interface
-    // This test would need custom interface or internal functions
-    // Skipping mint/burn test as standard ERC20 doesn't expose these
+// This test would need custom interface or internal functions
+// Skipping mint/burn test as standard ERC20 doesn't expose these
 }
 
 #[test]
@@ -207,6 +205,6 @@ fn test_voting_checkpoints() {
     // Check historical votes
     let past_votes = votes.get_past_votes(OWNER(), 1500);
     assert!(past_votes == votes_at_1000, "Wrong historical votes");
-    
+
     stop_cheat_block_timestamp(token_address);
 }

@@ -1,14 +1,14 @@
 #[starknet::contract]
 pub mod SurvivorGovernor {
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
-    use openzeppelin_governance::governor::extensions::GovernorVotesQuorumFractionComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorSettingsComponent::InternalTrait as GovernorSettingsInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorTimelockExecutionComponent::InternalTrait as GovernorTimelockExecutionInternalTrait;
+    use openzeppelin_governance::governor::extensions::GovernorVotesQuorumFractionComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
-        GovernorVotesQuorumFractionComponent, GovernorSettingsComponent, GovernorCountingSimpleComponent,
-        GovernorTimelockExecutionComponent
+        GovernorCountingSimpleComponent, GovernorSettingsComponent,
+        GovernorTimelockExecutionComponent, GovernorVotesQuorumFractionComponent,
     };
-    use openzeppelin_governance::governor::{GovernorComponent, DefaultConfig};
+    use openzeppelin_governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
@@ -19,19 +19,23 @@ pub mod SurvivorGovernor {
     pub const QUORUM_NUMERATOR: u256 = 200; // 20%
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
-    component!(path: GovernorVotesQuorumFractionComponent, storage: governor_votes, event: GovernorVotesEvent);
     component!(
-        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent
+        path: GovernorVotesQuorumFractionComponent,
+        storage: governor_votes,
+        event: GovernorVotesEvent,
+    );
+    component!(
+        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent,
     );
     component!(
         path: GovernorCountingSimpleComponent,
         storage: governor_counting_simple,
-        event: GovernorCountingSimpleEvent
+        event: GovernorCountingSimpleEvent,
     );
     component!(
         path: GovernorTimelockExecutionComponent,
         storage: governor_timelock_execution,
-        event: GovernorTimelockExecutionEvent
+        event: GovernorTimelockExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -98,7 +102,7 @@ pub mod SurvivorGovernor {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, votes_token: ContractAddress, timelock_controller: ContractAddress
+        ref self: ContractState, votes_token: ContractAddress, timelock_controller: ContractAddress,
     ) {
         self.governor.initializer();
         self.governor_votes.initializer(votes_token, QUORUM_NUMERATOR);

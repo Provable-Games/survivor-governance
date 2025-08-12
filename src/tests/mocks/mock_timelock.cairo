@@ -1,8 +1,11 @@
 #[starknet::contract]
 pub mod MockTimelock {
-    use starknet::{ContractAddress, get_block_timestamp};
-    use starknet::storage::{Map, StoragePointerReadAccess, StoragePointerWriteAccess, StorageMapReadAccess, StorageMapWriteAccess};
     use core::num::traits::Zero;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
+    use starknet::{ContractAddress, get_block_timestamp};
 
     #[storage]
     struct Storage {
@@ -69,23 +72,26 @@ pub mod MockTimelock {
         ) -> felt252 {
             let min_delay = self.min_delay.read();
             assert(delay >= min_delay, 'Insufficient delay');
-            
+
             let id = self.hash_operation(target, value, data, predecessor, salt);
             let current_state = self.operations.read(id);
             assert(current_state.ready_at.is_zero(), 'Already scheduled');
-            
+
             let ready_at = get_block_timestamp() + delay;
             self.operations.write(id, OperationState { ready_at: ready_at, done: false });
-            
-            self.emit(CallScheduled {
-                id: id,
-                index: 0,
-                target: target,
-                value: value,
-                predecessor: predecessor,
-                delay: delay,
-            });
-            
+
+            self
+                .emit(
+                    CallScheduled {
+                        id: id,
+                        index: 0,
+                        target: target,
+                        value: value,
+                        predecessor: predecessor,
+                        delay: delay,
+                    },
+                );
+
             id
         }
 
@@ -99,31 +105,25 @@ pub mod MockTimelock {
         ) {
             let id = self.hash_operation(target, value, data, predecessor, salt);
             let operation_state = self.operations.read(id);
-            
+
             assert(!operation_state.ready_at.is_zero(), 'Not scheduled');
             assert(!operation_state.done, 'Already executed');
             assert(get_block_timestamp() >= operation_state.ready_at, 'Not ready');
-            
-            self.operations.write(id, OperationState { 
-                ready_at: operation_state.ready_at, 
-                done: true 
-            });
-            
-            self.emit(CallExecuted {
-                id: id,
-                index: 0,
-                target: target,
-                value: value,
-            });
+
+            self
+                .operations
+                .write(id, OperationState { ready_at: operation_state.ready_at, done: true });
+
+            self.emit(CallExecuted { id: id, index: 0, target: target, value: value });
         }
 
         fn cancel(ref self: ContractState, id: felt252) {
             let operation_state = self.operations.read(id);
             assert(!operation_state.ready_at.is_zero(), 'Not scheduled');
             assert(!operation_state.done, 'Already executed');
-            
+
             self.operations.write(id, OperationState { ready_at: 0, done: false });
-            
+
             self.emit(CallCancelled { id: id });
         }
 
@@ -134,8 +134,8 @@ pub mod MockTimelock {
 
         fn is_operation_ready(self: @ContractState, id: felt252) -> bool {
             let operation_state = self.operations.read(id);
-            !operation_state.ready_at.is_zero() 
-                && !operation_state.done 
+            !operation_state.ready_at.is_zero()
+                && !operation_state.done
                 && get_block_timestamp() >= operation_state.ready_at
         }
 
@@ -168,15 +168,14 @@ pub mod MockTimelock {
             while i < data.len() {
                 hash_data.append(*data.at(i));
                 i += 1;
-            };
+            }
             hash_data.append(predecessor);
             hash_data.append(salt);
-            
+
             core::poseidon::poseidon_hash_span(hash_data.span())
         }
     }
 }
-
 use starknet::ContractAddress;
 
 #[starknet::interface]
@@ -190,7 +189,7 @@ pub trait IMockTimelock<TContractState> {
         salt: felt252,
         delay: u64,
     ) -> felt252;
-    
+
     fn execute(
         ref self: TContractState,
         target: ContractAddress,
@@ -199,7 +198,7 @@ pub trait IMockTimelock<TContractState> {
         predecessor: felt252,
         salt: felt252,
     );
-    
+
     fn cancel(ref self: TContractState, id: felt252);
     fn is_operation_pending(self: @TContractState, id: felt252) -> bool;
     fn is_operation_ready(self: @TContractState, id: felt252) -> bool;

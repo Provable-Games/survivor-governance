@@ -22,7 +22,7 @@ mod SurvivorGovernorController {
         #[substorage(v0)]
         timelock: TimelockControllerComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -33,7 +33,7 @@ mod SurvivorGovernorController {
         #[flat]
         TimelockEvent: TimelockControllerComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -42,7 +42,7 @@ mod SurvivorGovernorController {
         min_delay: u64,
         proposers: Span<ContractAddress>,
         executors: Span<ContractAddress>,
-        admin: ContractAddress
+        admin: ContractAddress,
     ) {
         self.timelock.initializer(min_delay, proposers, executors, admin);
     }

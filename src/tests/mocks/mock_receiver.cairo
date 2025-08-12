@@ -1,7 +1,9 @@
 #[starknet::contract]
 pub mod MockReceiver {
     use starknet::ContractAddress;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess, Vec, MutableVecTrait};
+    use starknet::storage::{
+        MutableVecTrait, StoragePointerReadAccess, StoragePointerWriteAccess, Vec,
+    };
 
     #[storage]
     struct Storage {
@@ -34,23 +36,19 @@ pub mod MockReceiver {
         fn receive_call(ref self: ContractState, value: u256, data: Span<felt252>) {
             let sender = starknet::get_caller_address();
             let call_count = self.call_count.read() + 1;
-            
+
             self.last_sender.write(sender);
             self.last_value.write(value);
-            
+
             // Clear previous data and write new data
             let mut i = 0;
             while i < data.len() {
                 self.last_data.push(*data.at(i));
                 i += 1;
-            };
+            }
             self.call_count.write(call_count);
-            
-            self.emit(CallReceived {
-                sender: sender,
-                value: value,
-                call_number: call_count,
-            });
+
+            self.emit(CallReceived { sender: sender, value: value, call_number: call_count });
         }
 
         fn receive_and_revert(ref self: ContractState, should_revert: bool) {
@@ -62,13 +60,11 @@ pub mod MockReceiver {
         }
 
         fn receive_and_callback(
-            ref self: ContractState, 
-            callback_target: ContractAddress,
-            callback_data: Span<felt252>
+            ref self: ContractState, callback_target: ContractAddress, callback_data: Span<felt252>,
         ) {
             let call_count = self.call_count.read() + 1;
             self.call_count.write(call_count);
-            
+
             panic!("Callback not implemented for simplicity");
         }
 
@@ -81,7 +77,6 @@ pub mod MockReceiver {
         }
     }
 }
-
 use starknet::ContractAddress;
 
 #[starknet::interface]
@@ -89,9 +84,7 @@ pub trait IMockReceiver<TContractState> {
     fn receive_call(ref self: TContractState, value: u256, data: Span<felt252>);
     fn receive_and_revert(ref self: TContractState, should_revert: bool);
     fn receive_and_callback(
-        ref self: TContractState, 
-        callback_target: ContractAddress,
-        callback_data: Span<felt252>
+        ref self: TContractState, callback_target: ContractAddress, callback_data: Span<felt252>,
     );
     fn get_last_call(self: @TContractState) -> (ContractAddress, u256, u32);
     fn get_call_count(self: @TContractState) -> u32;

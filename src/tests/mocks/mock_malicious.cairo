@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub mod MockMalicious {
-    use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
     struct Storage {
@@ -39,12 +39,14 @@ pub mod MockMalicious {
         fn attempt_reentrancy(ref self: ContractState) {
             let attempts = self.reentrancy_attempts.read();
             self.reentrancy_attempts.write(attempts + 1);
-            
-            self.emit(ReentrancyAttempted {
-                attempt_number: attempts + 1,
-                caller: get_caller_address(),
-            });
-            
+
+            self
+                .emit(
+                    ReentrancyAttempted {
+                        attempt_number: attempts + 1, caller: get_caller_address(),
+                    },
+                );
+
             if attempts < 2 {
                 panic!("Reentrancy protection should prevent this");
             }
@@ -57,33 +59,21 @@ pub mod MockMalicious {
                 let value: felt252 = i.into();
                 data.append(value);
                 i += 1;
-            };
-            
-            self.emit(AttackExecuted {
-                attack_type: 'GAS_GRIEFING',
-                success: false,
-            });
+            }
+
+            self.emit(AttackExecuted { attack_type: 'GAS_GRIEFING', success: false });
         }
 
         fn attempt_double_vote(ref self: ContractState, proposal_id: felt252) {
-            self.emit(AttackExecuted {
-                attack_type: 'DOUBLE_VOTE',
-                success: false,
-            });
+            self.emit(AttackExecuted { attack_type: 'DOUBLE_VOTE', success: false });
         }
 
         fn flash_loan_attack(ref self: ContractState) {
-            self.emit(AttackExecuted {
-                attack_type: 'FLASH_LOAN',
-                success: false,
-            });
+            self.emit(AttackExecuted { attack_type: 'FLASH_LOAN', success: false });
         }
 
         fn front_run_proposal(ref self: ContractState, original_proposal: felt252) {
-            self.emit(AttackExecuted {
-                attack_type: 'FRONT_RUN',
-                success: false,
-            });
+            self.emit(AttackExecuted { attack_type: 'FRONT_RUN', success: false });
         }
     }
 }

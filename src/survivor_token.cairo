@@ -1,9 +1,9 @@
 #[starknet::contract]
 pub mod SurvivorToken {
     use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
-    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -72,7 +72,11 @@ pub mod SurvivorToken {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, token_name: ByteArray, token_symbol: ByteArray, initial_supply: u256, recipient: ContractAddress,
+        ref self: ContractState,
+        token_name: ByteArray,
+        token_symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(token_name, token_symbol);
         self.erc20.mint(recipient, initial_supply);
