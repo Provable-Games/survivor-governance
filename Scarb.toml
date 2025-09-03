@@ -2,6 +2,9 @@
 name = "survivor_governance"
 version = "0.0.1"
 edition = "2024_07"
+license = "MIT"
+cairo-version = "2.11.4"
+scarb-version = "2.11.4"
 
 [dependencies]
 starknet = "2.11.4"

@@ -1,5 +1,4 @@
 target/
-.tool-versions
 .snfoundry_cache/
 snfoundry_trace/
 argent_account.json
