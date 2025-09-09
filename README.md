@@ -1,6 +1,6 @@
 # Survivor Governance
 
-A decentralized governance system built on Starknet using Cairo smart contracts, implementing a complete DAO (Decentralized Autonomous Organization) framework with timelock controls and token-weighted voting.
+A fully onchain and decentralized governance system for the Loot Survivor ecosystem.
 
 ## Overview
 
