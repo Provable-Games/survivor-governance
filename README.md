@@ -110,3 +110,9 @@ Built with:
 - [Starknet](https://starknet.io)
 - [Scarb](https://docs.swmansion.com/scarb/)
 - [Starknet Foundry](https://foundry-rs.github.io/starknet-foundry/)
+
+## Contracts
+
+- Survivor Token: 0x042DD777885AD2C116be96d4D634abC90A26A790ffB5871E037Dd5Ae7d2Ec86B
+- Survivor Controller: 0x041bb7729EFA185F2CAb327dE0A668886302f1d4969e3eDf504c4741648F858B
+- Survivor Governor: 0x050897Ea9df71b661b8eaC53162Be37552E729EE9D33A6f9aE0B61c95a11209E
