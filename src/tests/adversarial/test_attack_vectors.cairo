@@ -226,7 +226,7 @@ fn test_delegation_griefing_attack() {
 
     // Attacker tries to grief by sending dust amounts
     start_cheat_caller_address(token, OWNER());
-    let mut i = 0;
+    let mut i: u32 = 0;
     while i < 10 {
         erc20.transfer(VICTIM(), 1); // Send 1 wei
         i += 1;

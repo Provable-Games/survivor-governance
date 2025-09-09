@@ -6,14 +6,13 @@ use openzeppelin_access::accesscontrol::interface::{
 use openzeppelin_governance::governor::interface::{
     IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
 };
-use openzeppelin_governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
+use openzeppelin_governance::timelock::interface::ITimelockDispatcher;
 use openzeppelin_governance::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{
-    ContractClassTrait, DeclareResultTrait, EventSpyAssertionsTrait, declare, spy_events,
-    start_cheat_block_timestamp, start_cheat_caller_address, stop_cheat_block_timestamp,
-    stop_cheat_caller_address,
+    ContractClassTrait, DeclareResultTrait, declare, start_cheat_block_timestamp,
+    start_cheat_caller_address, stop_cheat_block_timestamp, stop_cheat_caller_address,
 };
 use starknet::{ContractAddress, get_block_timestamp};
 use starknet::account::Call;
@@ -255,6 +254,7 @@ fn test_it_001_complete_governance_cycle() {
     stop_cheat_block_timestamp(governor);
     stop_cheat_block_timestamp(timelock);
     stop_cheat_block_timestamp(token);
+    stop_cheat_block_timestamp(token);
 }
 
 #[test]
@@ -320,6 +320,7 @@ fn test_it_002_emergency_pause_scenario() {
     assert(gov.state(proposal_id) == ProposalState::Succeeded, 'Emergency should pass');
 
     stop_cheat_block_timestamp(governor);
+    stop_cheat_block_timestamp(token);
 }
 
 #[test]
@@ -350,11 +351,7 @@ fn test_it_003_parameter_update_flow() {
     // Propose multiple parameter changes
     let gov = IGovernorDispatcher { contract_address: governor };
 
-    // Multiple targets for different parameter updates
-    let targets: Array<ContractAddress> = array![governor, governor, governor];
-    let values: Array<u256> = array![0, 0, 0];
-
-    // Calldata for: set_voting_delay, set_voting_period, set_proposal_threshold
+    // Create Call structs for parameter updates
     let new_voting_delay = 172800_u64; // 2 days
     let new_voting_period = 1209600_u64; // 2 weeks
     let new_threshold = 50000000000000000000_u256; // 50 tokens
@@ -367,7 +364,7 @@ fn test_it_003_parameter_update_flow() {
     let calldata2 = array![selector2, new_voting_period.into()].span();
     let calldata3 = array![selector3, new_threshold.low.into(), new_threshold.high.into()].span();
 
-    let calldatas: Array<Span<felt252>> = array![calldata1, calldata2, calldata3];
+    let calls = array![call1, call2, call3];
     let description: ByteArray = "Update Governance Parameters";
     
     let calls = create_calls(targets.span(), values.span(), calldatas.span());
@@ -394,6 +391,7 @@ fn test_it_003_parameter_update_flow() {
     assert(gov.state(proposal_id) == ProposalState::Succeeded, 'Update should succeed');
 
     stop_cheat_block_timestamp(governor);
+    stop_cheat_block_timestamp(token);
 }
 
 #[test]
@@ -470,7 +468,12 @@ fn test_it_004_failed_proposal_recovery() {
     assert(gov.state(proposal1_id) == ProposalState::Defeated, 'Should be defeated');
 
     // Second proposal - improved version
-    let calldatas2: Array<Span<felt252>> = array![array![2].span()]; // Modified calldata
+    let call2 = Call {
+        to: target,
+        selector: selector!("test_function"),
+        calldata: array![2].span() // Modified calldata
+    };
+    let calls2 = array![call2];
     let description2: ByteArray = "Improved Proposal v2";
     
     let calls2 = create_calls(targets.span(), values.span(), calldatas2.span());
@@ -688,7 +691,7 @@ fn test_it_009_timelock_bypass_attempt() {
     let votes = IVotesDispatcher { contract_address: token };
 
     start_cheat_caller_address(token, ADMIN());
-    erc20.transfer(EVE(), 100000000000000000000000); // 100k tokens
+    erc20.transfer(EVE(), 600000000000000000000000); // 600k tokens (60% for majority)
     stop_cheat_caller_address(token);
 
     start_cheat_caller_address(token, EVE());
@@ -739,7 +742,11 @@ fn test_it_009_timelock_bypass_attempt() {
     
     start_cheat_caller_address(governor, EVE());
     gov.queue(calls.span(), description_hash);
+    gov.queue(calls.span(), description_hash);
     stop_cheat_caller_address(governor);
+
+    // After queueing, state should be Queued
+    assert(gov.state(proposal_id) == ProposalState::Queued, 'Should be queued');
 
     // Try immediate execution (should fail - not ready)
     let immediate_time = voting_end_time + 2;
@@ -756,9 +763,11 @@ fn test_it_009_timelock_bypass_attempt() {
 
     start_cheat_caller_address(governor, EVE());
     gov.execute(calls.span(), description_hash);
+    gov.execute(calls.span(), description_hash);
     stop_cheat_caller_address(governor);
 
-    assert(gov.state(proposal_id) == ProposalState::Executed, 'Should execute after delay');
+    // After execution, state should be Executed
+    assert(gov.state(proposal_id) == ProposalState::Executed, 'Should be executed');
 
     stop_cheat_block_timestamp(governor);
     stop_cheat_block_timestamp(token);
