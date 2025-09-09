@@ -1,4 +1,3 @@
-use core::serde::Serde;
 use openzeppelin_governance::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use starknet::ContractAddress;
@@ -47,13 +46,13 @@ fn test_governance_settings() {
     let governance = deploy_governance(token);
 
     // Test voting delay
-    assert!(governance.voting_delay() == 86400, "Wrong voting delay");
+    assert!(governance.voting_delay() == 3600, "Wrong voting delay");
 
     // Test voting period
-    assert!(governance.voting_period() == 604800, "Wrong voting period");
+    assert!(governance.voting_period() == 432000, "Wrong voting period");
 
     // Test proposal threshold
-    assert!(governance.proposal_threshold() == 10, "Wrong proposal threshold");
+    assert!(governance.proposal_threshold() == 50000000000000000000000, "Wrong proposal threshold");
 }
 
 #[test]

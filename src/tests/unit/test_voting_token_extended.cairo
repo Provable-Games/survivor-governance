@@ -57,7 +57,7 @@ fn test_deployment_parameters() {
     let metadata = IERC20MetadataDispatcher { contract_address: token_address };
 
     // Check name and symbol
-    assert!(metadata.name() == "Survivor Token", "Wrong token name");
+    assert!(metadata.name() == "Survivor", "Wrong token name");
     assert!(metadata.symbol() == "SURVIVOR", "Wrong token symbol");
 
     // Check decimals

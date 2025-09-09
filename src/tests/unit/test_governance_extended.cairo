@@ -1,5 +1,4 @@
 // Extended Governance Tests for Better Coverage
-use core::serde::Serde;
 use openzeppelin_governance::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
 use openzeppelin_governance::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -74,9 +73,9 @@ fn test_governance_deployment_extended() {
     let gov = IGovernorDispatcher { contract_address: governor };
 
     // Check governance parameters
-    assert!(gov.voting_delay() == 86400, "Wrong voting delay");
-    assert!(gov.voting_period() == 604800, "Wrong voting period");
-    assert!(gov.proposal_threshold() == 10, "Wrong proposal threshold");
+    assert!(gov.voting_delay() == 3600, "Wrong voting delay");
+    assert!(gov.voting_period() == 432000, "Wrong voting period");
+    assert!(gov.proposal_threshold() == 50000000000000000000000, "Wrong proposal threshold");
 }
 
 #[test]

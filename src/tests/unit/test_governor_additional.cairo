@@ -1,5 +1,4 @@
 // Additional governor tests to increase coverage
-use core::serde::Serde;
 use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use starknet::ContractAddress;
 

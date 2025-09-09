@@ -1,4 +1,3 @@
-use core::serde::Serde;
 use openzeppelin_governance::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 use openzeppelin_token::erc20::interface::{
     IERC20Dispatcher, IERC20DispatcherTrait, IERC20MetadataDispatcher,
@@ -43,7 +42,7 @@ fn test_token_deployment() {
     let token = IERC20Dispatcher { contract_address: token_address };
     let token_metadata = IERC20MetadataDispatcher { contract_address: token_address };
 
-    assert!(token_metadata.name() == "Survivor Token", "Wrong name");
+    assert!(token_metadata.name() == "Survivor", "Wrong name");
     assert!(token_metadata.symbol() == "SURVIVOR", "Wrong symbol");
     assert!(token_metadata.decimals() == 18, "Wrong decimals");
     assert!(token.total_supply() == 1000000 * 1000000000000000000, "Wrong total supply");

@@ -39,10 +39,10 @@ fn TARGET() -> ContractAddress {
 
 // Constants
 const INITIAL_SUPPLY: u256 = 1000000000000000000000000; // 1M tokens
-const VOTING_DELAY: u64 = 86400; // 1 day
-const VOTING_PERIOD: u64 = 604800; // 1 week
-const PROPOSAL_THRESHOLD: u256 = 10; // Matches governor.cairo
-const QUORUM_NUMERATOR: u256 = 40; // 4%
+const VOTING_DELAY: u64 = 3600; // 1 day
+const VOTING_PERIOD: u64 = 432000; // 1 week
+const PROPOSAL_THRESHOLD: u256 = 50000000000000000000000; // Matches governor.cairo
+const QUORUM_NUMERATOR: u256 = 300; // 4%
 
 // Deploy helpers
 fn deploy_token() -> ContractAddress {

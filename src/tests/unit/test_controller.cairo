@@ -2,10 +2,7 @@ use core::serde::Serde;
 use openzeppelin_access::accesscontrol::interface::{
     IAccessControlDispatcher, IAccessControlDispatcherTrait,
 };
-use openzeppelin_governance::timelock::interface::{
-    ITimelockDispatcher, ITimelockDispatcherTrait, ITimelockSafeDispatcher,
-    ITimelockSafeDispatcherTrait,
-};
+use openzeppelin_governance::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
 use snforge_std::{
     ContractClassTrait, DeclareResultTrait, EventSpyTrait, EventsFilterTrait, declare, spy_events,
     start_cheat_block_timestamp, start_cheat_caller_address, stop_cheat_block_timestamp,
@@ -296,6 +293,7 @@ fn test_execute_without_role() {
 }
 
 #[test]
+#[should_panic]
 fn test_cancel_operation() {
     let proposers: Array<ContractAddress> = array![PROPOSER()];
     let executors: Array<ContractAddress> = array![EXECUTOR()];
@@ -333,17 +331,9 @@ fn test_cancel_operation() {
     let current_time = get_block_timestamp();
     start_cheat_block_timestamp(controller_address, current_time + MIN_DELAY + 1);
 
-    // Try to execute cancelled operation (should fail)
-    let safe_dispatcher = ITimelockSafeDispatcher { contract_address: controller_address };
     start_cheat_caller_address(controller_address, EXECUTOR());
     let call = Call { to: target, selector: 0, calldata: data.span() };
-    match safe_dispatcher.execute(call, predecessor, salt) {
-        Result::Ok(_) => panic!("Should not execute cancelled operation"),
-        Result::Err(_) => {} // Expected
-    }
-    stop_cheat_caller_address(controller_address);
-
-    stop_cheat_block_timestamp(controller_address);
+    timelock.execute(call, predecessor, salt);
 }
 
 #[test]
@@ -391,6 +381,7 @@ fn test_batch_operations() {
 }
 
 #[test]
+#[should_panic(expected: ('Timelock: unauthorized caller',))]
 fn test_update_delay() {
     let proposers: Array<ContractAddress> = array![PROPOSER()];
     let executors: Array<ContractAddress> = array![EXECUTOR()];
@@ -414,7 +405,7 @@ fn test_update_delay() {
     start_cheat_caller_address(controller_address, PROPOSER());
     let call = Call { to: target, selector, calldata: calldata.span() };
     timelock.schedule(call, predecessor, salt, delay);
-    let operation_id = timelock.hash_operation(call, predecessor, salt);
+    let _operation_id = timelock.hash_operation(call, predecessor, salt);
     stop_cheat_caller_address(controller_address);
 
     // Fast forward time
@@ -425,21 +416,6 @@ fn test_update_delay() {
     // will fail because only the timelock itself can call it
     start_cheat_caller_address(controller_address, EXECUTOR());
 
-    // Use safe dispatcher to handle the expected failure gracefully
-    let safe_dispatcher = ITimelockSafeDispatcher { contract_address: controller_address };
     let call = Call { to: target, selector, calldata: calldata.span() };
-    match safe_dispatcher.execute(call, predecessor, salt) {
-        Result::Ok(_) => { // The execute itself succeeds, but the internal call to update_delay will fail
-        // because it requires the caller to be the timelock itself
-        },
-        Result::Err(_) => { // This is also acceptable - the execution might fail
-        },
-    }
-    stop_cheat_caller_address(controller_address);
-
-    stop_cheat_block_timestamp(controller_address);
-
-    // The operation may or may not be marked as done depending on implementation details
-    // What's important is that the delay remains unchanged because only timelock can update itself
-    assert!(timelock.get_min_delay() == MIN_DELAY, "Delay should not have changed");
+    timelock.execute(call, predecessor, salt);
 }

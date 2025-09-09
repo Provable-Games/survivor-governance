@@ -71,11 +71,7 @@ pub mod SurvivorToken {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        initial_supply: u256,
-        recipient: ContractAddress,
-    ) {
+    fn constructor(ref self: ContractState, initial_supply: u256, recipient: ContractAddress) {
         self.erc20.initializer("Survivor", "SURVIVOR");
         self.erc20.mint(recipient, initial_supply);
     }
