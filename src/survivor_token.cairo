@@ -48,17 +48,17 @@ pub mod SurvivorToken {
     // Required for hash computation
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
-            'Test_Token'
+            'SurvivorToken'
         }
         fn version() -> felt252 {
-            '1'
+            'v1'
         }
     }
 
     // We need to call the `transfer_voting_units` function after
     // every mint, burn and transfer.
     // For this, we use the `after_update` hook of the `ERC20Component::ERC20HooksTrait`.
-    impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
         fn after_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
@@ -73,12 +73,10 @@ pub mod SurvivorToken {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        token_name: ByteArray,
-        token_symbol: ByteArray,
         initial_supply: u256,
         recipient: ContractAddress,
     ) {
-        self.erc20.initializer(token_name, token_symbol);
+        self.erc20.initializer("Survivor", "SURVIVOR");
         self.erc20.mint(recipient, initial_supply);
     }
 }

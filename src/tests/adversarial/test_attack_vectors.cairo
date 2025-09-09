@@ -31,12 +31,8 @@ const INITIAL_SUPPLY: u256 = 1000000000000000000000000; // 1M tokens
 fn deploy_governance_with_tokens() -> (ContractAddress, ContractAddress, ContractAddress) {
     // Deploy token
     let token_class = declare("SurvivorToken").unwrap().contract_class();
-    let token_name: ByteArray = "Attack Test Token";
-    let token_symbol: ByteArray = "ATK";
 
     let mut token_calldata = array![];
-    token_name.serialize(ref token_calldata);
-    token_symbol.serialize(ref token_calldata);
     token_calldata.append(INITIAL_SUPPLY.low.into());
     token_calldata.append(INITIAL_SUPPLY.high.into());
     token_calldata.append(OWNER().into());

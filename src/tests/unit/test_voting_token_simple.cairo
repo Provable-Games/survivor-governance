@@ -26,15 +26,7 @@ fn deploy_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
     let initial_supply: u256 = 1000000 * 1000000000000000000; // 1M tokens with 18 decimals
 
-    // Use string literals that will be auto-converted to ByteArray
-    let token_name: ByteArray = "Survivor Coin";
-    let token_symbol: ByteArray = "SURVIVOR";
-
     let mut constructor_calldata = array![];
-    // Serialize ByteArray for token_name
-    token_name.serialize(ref constructor_calldata);
-    // Serialize ByteArray for token_symbol
-    token_symbol.serialize(ref constructor_calldata);
     // initial_supply
     constructor_calldata.append(initial_supply.low.into());
     constructor_calldata.append(initial_supply.high.into());
@@ -51,7 +43,7 @@ fn test_token_deployment() {
     let token = IERC20Dispatcher { contract_address: token_address };
     let token_metadata = IERC20MetadataDispatcher { contract_address: token_address };
 
-    assert!(token_metadata.name() == "Survivor Coin", "Wrong name");
+    assert!(token_metadata.name() == "Survivor Token", "Wrong name");
     assert!(token_metadata.symbol() == "SURVIVOR", "Wrong symbol");
     assert!(token_metadata.decimals() == 18, "Wrong decimals");
     assert!(token.total_supply() == 1000000 * 1000000000000000000, "Wrong total supply");
@@ -159,18 +151,6 @@ fn test_voting_power_delegation_to_others() {
 
     // Check delegation is recorded
     assert!(votes.delegates(USER1()) == USER2(), "Wrong delegate");
-}
-
-#[test]
-fn test_mint_and_burn() {
-    let token_address = deploy_token();
-    let erc20 = IERC20Dispatcher { contract_address: token_address };
-
-    let _initial_supply = erc20.total_supply();
-    let _mint_amount = 50000 * 1000000000000000000;
-    // Note: Standard ERC20 doesn't have mint/burn in the interface
-// This test would need custom interface or internal functions
-// Skipping mint/burn test as standard ERC20 doesn't expose these
 }
 
 #[test]

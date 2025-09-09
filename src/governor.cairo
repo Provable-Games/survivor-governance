@@ -13,10 +13,10 @@ pub mod SurvivorGovernor {
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
-    pub const PROPOSAL_THRESHOLD: u256 = 10;
-    pub const QUORUM_NUMERATOR: u256 = 200; // 20%
+    pub const VOTING_DELAY: u64 = 3600; // 1 hour
+    pub const VOTING_PERIOD: u64 = 432000; // 5 days
+    pub const PROPOSAL_THRESHOLD: u256 = 50000000000000000000000; // 50k tokens 18 decimals
+    pub const QUORUM_NUMERATOR: u256 = 300; // 30%
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(
@@ -116,11 +116,11 @@ pub mod SurvivorGovernor {
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
-            'TEST_GOVERNOR'
+            'SurvivorGovernor'
         }
 
         fn version() -> felt252 {
-            '1'
+            'v1'
         }
     }
 }

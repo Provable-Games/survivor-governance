@@ -30,12 +30,8 @@ const INITIAL_SUPPLY: u256 = 1000000000000000000000000; // 1M tokens
 fn deploy_full_governance() -> (ContractAddress, ContractAddress, ContractAddress) {
     // Deploy token
     let token_class = declare("SurvivorToken").unwrap().contract_class();
-    let token_name: ByteArray = "Governance Token";
-    let token_symbol: ByteArray = "GOV";
 
     let mut token_calldata = array![];
-    token_name.serialize(ref token_calldata);
-    token_symbol.serialize(ref token_calldata);
     token_calldata.append(INITIAL_SUPPLY.low.into());
     token_calldata.append(INITIAL_SUPPLY.high.into());
     token_calldata.append(OWNER().into());
@@ -188,8 +184,8 @@ fn test_governance_name_and_version() {
     let gov = IGovernorDispatcher { contract_address: governor };
 
     // Check governance metadata
-    assert!(gov.name() == 'TEST_GOVERNOR', "Wrong governor name");
-    assert!(gov.version() == '1', "Wrong governor version");
+    assert!(gov.name() == 'SurvivorGovernor', "Wrong governor name");
+    assert!(gov.version() == 'v1', "Wrong governor version");
 }
 
 #[test]

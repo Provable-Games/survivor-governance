@@ -48,12 +48,7 @@ const QUORUM_NUMERATOR: u256 = 40; // 4%
 fn deploy_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
 
-    let token_name: ByteArray = "Test Token";
-    let token_symbol: ByteArray = "TEST";
-
     let mut constructor_calldata = array![];
-    token_name.serialize(ref constructor_calldata);
-    token_symbol.serialize(ref constructor_calldata);
     constructor_calldata.append(INITIAL_SUPPLY.low.into());
     constructor_calldata.append(INITIAL_SUPPLY.high.into());
     constructor_calldata.append(ADMIN().into());
@@ -142,8 +137,8 @@ fn test_sg_001_deployment() {
     let governor_address = deploy_governor(token, timelock);
     let governor = IGovernorDispatcher { contract_address: governor_address };
 
-    assert(governor.name() == 'TEST_GOVERNOR', 'Wrong name');
-    assert(governor.version() == '1', 'Wrong version');
+    assert(governor.name() == 'SurvivorGovernor', 'Wrong name');
+    assert(governor.version() == 'v1', 'Wrong version');
     assert(governor.voting_delay() == VOTING_DELAY, 'Wrong voting delay');
     assert(governor.voting_period() == VOTING_PERIOD, 'Wrong voting period');
     assert(governor.proposal_threshold() == PROPOSAL_THRESHOLD, 'Wrong threshold');

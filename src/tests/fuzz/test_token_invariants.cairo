@@ -20,12 +20,7 @@ fn get_test_address(index: felt252) -> ContractAddress {
 fn deploy_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
 
-    let token_name: ByteArray = "Fuzz Test Token";
-    let token_symbol: ByteArray = "FUZZ";
-
     let mut constructor_calldata = array![];
-    token_name.serialize(ref constructor_calldata);
-    token_symbol.serialize(ref constructor_calldata);
     constructor_calldata.append(INITIAL_SUPPLY.low.into());
     constructor_calldata.append(INITIAL_SUPPLY.high.into());
     constructor_calldata.append(get_test_address('OWNER').into());

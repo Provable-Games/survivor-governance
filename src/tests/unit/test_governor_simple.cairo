@@ -24,12 +24,7 @@ fn test_governance_deployment() {
     let token_class = declare("SurvivorToken").unwrap().contract_class();
     let initial_supply: u256 = 1000000000 * 1000000000000000000; // 1B tokens
 
-    let token_name: ByteArray = "Test Token";
-    let token_symbol: ByteArray = "TEST";
-
     let mut token_calldata = array![];
-    token_name.serialize(ref token_calldata);
-    token_symbol.serialize(ref token_calldata);
     token_calldata.append(initial_supply.low.into());
     token_calldata.append(initial_supply.high.into());
     token_calldata.append(OWNER().into());
@@ -40,10 +35,10 @@ fn test_governance_deployment() {
     let governance = deploy_governance(token_address);
 
     // Test name
-    assert!(governance.name() == 'TEST_GOVERNOR', "Wrong governance name");
+    assert!(governance.name() == 'SurvivorGovernor', "Wrong governance name");
 
     // Test version
-    assert!(governance.version() == '1', "Wrong governance version");
+    assert!(governance.version() == 'v1', "Wrong governance version");
 }
 
 #[test]
@@ -67,12 +62,7 @@ fn test_governance_quorum() {
     let token_class = declare("SurvivorToken").unwrap().contract_class();
     let initial_supply: u256 = 1000000000 * 1000000000000000000; // 1B tokens
 
-    let token_name: ByteArray = "Test Token";
-    let token_symbol: ByteArray = "TEST";
-
     let mut token_calldata = array![];
-    token_name.serialize(ref token_calldata);
-    token_symbol.serialize(ref token_calldata);
     token_calldata.append(initial_supply.low.into());
     token_calldata.append(initial_supply.high.into());
     token_calldata.append(OWNER().into());

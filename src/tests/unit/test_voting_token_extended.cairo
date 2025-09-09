@@ -38,15 +38,7 @@ const INITIAL_SUPPLY: u256 = 1000000000000000000000000; // 1M tokens with 18 dec
 fn deploy_voting_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
 
-    // Use string literals that will be auto-converted to ByteArray
-    let token_name: ByteArray = "Survivor Coin";
-    let token_symbol: ByteArray = "SURVIVOR";
-
     let mut calldata = array![];
-    // Serialize ByteArray for token_name
-    token_name.serialize(ref calldata);
-    // Serialize ByteArray for token_symbol
-    token_symbol.serialize(ref calldata);
     // initial_supply
     calldata.append(INITIAL_SUPPLY.low.into());
     calldata.append(INITIAL_SUPPLY.high.into());
@@ -65,7 +57,7 @@ fn test_deployment_parameters() {
     let metadata = IERC20MetadataDispatcher { contract_address: token_address };
 
     // Check name and symbol
-    assert!(metadata.name() == "Survivor Coin", "Wrong token name");
+    assert!(metadata.name() == "Survivor Token", "Wrong token name");
     assert!(metadata.symbol() == "SURVIVOR", "Wrong token symbol");
 
     // Check decimals
@@ -355,22 +347,6 @@ fn test_get_past_votes() {
 
     stop_cheat_block_timestamp(token_address);
 }
-
-// VT-012: Test nonce increment
-// #[test]
-// fn test_nonce_increment() {
-//     let token_address = deploy_voting_token();
-//     // Commented out as INoncesDispatcher is not available
-//     // let nonces = INoncesDispatcher { contract_address: token_address };
-//
-//     // Initial nonce should be 0
-//     // let initial_nonce = nonces.nonces(OWNER());
-//     // assert!(initial_nonce == 0, "Initial nonce not zero");
-//
-//     // Note: Actual nonce increment would happen through delegation by signature
-//     // which requires more complex setup with signature verification
-//     // For this test, we verify the nonce interface is available
-// }
 
 // VT-013: Test voting checkpoints
 #[test]

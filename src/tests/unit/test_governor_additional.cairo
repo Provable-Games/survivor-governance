@@ -10,13 +10,9 @@ fn ADMIN() -> ContractAddress {
 fn deploy_token() -> ContractAddress {
     let class = declare("SurvivorToken").unwrap().contract_class();
 
-    let token_name: ByteArray = "Test Token";
-    let token_symbol: ByteArray = "TEST";
     let initial_supply: u256 = 1000000000000000000000000; // 1M tokens
 
     let mut constructor_calldata = array![];
-    token_name.serialize(ref constructor_calldata);
-    token_symbol.serialize(ref constructor_calldata);
     constructor_calldata.append(initial_supply.low.into());
     constructor_calldata.append(initial_supply.high.into());
     constructor_calldata.append(ADMIN().into());
@@ -59,13 +55,9 @@ fn test_governor_deployment_alternative_config() {
     // Deploy token with different recipient
     let token_class = declare("SurvivorToken").unwrap().contract_class();
 
-    let token_name: ByteArray = "Gov Token";
-    let token_symbol: ByteArray = "GOV";
     let initial_supply: u256 = 500000000000000000000000; // 500k tokens
 
     let mut constructor_calldata = array![];
-    token_name.serialize(ref constructor_calldata);
-    token_symbol.serialize(ref constructor_calldata);
     constructor_calldata.append(initial_supply.low.into());
     constructor_calldata.append(initial_supply.high.into());
     constructor_calldata.append(ADMIN().into());
