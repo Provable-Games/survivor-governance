@@ -38,10 +38,10 @@ A timelock controller that enforces delays on proposal execution:
 
 The main governance contract managing the proposal lifecycle:
 
-- **Voting Delay**: 1 day before voting starts
-- **Voting Period**: 1 week for community participation
-- **Proposal Threshold**: 10 tokens minimum to create proposals
-- **Quorum**: 20% of total supply must participate for validity
+- **Voting Delay**: 3600 (1 hour before voting starts)
+- **Voting Period**: 432000 (5 days for community participation)
+- **Proposal Threshold**: 50000000000000000000000 (50k tokens minimum to create proposals, 18 decimals)
+- **Quorum**: 30% of total supply must participate for validity
 
 ## Installation
 
@@ -78,18 +78,16 @@ cairo-coverage
 
 - **Unit tests**: `tests/unit/` - Individual function testing
 - **Integration tests**: `tests/integration/` - End-to-end governance flows
-- **Fuzz tests**: `tests/fuzz/` - Property-based testing
-- **Adversarial tests**: `tests/adversarial/` - Security testing
 
 ## Governance Parameters
 
-| Parameter          | Value     | Description                                          |
-| ------------------ | --------- | ---------------------------------------------------- |
-| Voting Delay       | 1 day     | Time before voting starts after proposal creation    |
-| Voting Period      | 1 week    | Duration of the voting phase                         |
-| Proposal Threshold | 10 tokens | Minimum tokens needed to create a proposal           |
-| Quorum             | 20%       | Minimum participation required for proposal validity |
-| Timelock Delay     | 1 hour    | Minimum delay before executing approved proposals    |
+| Parameter          | Value                      | Description                                          |
+| ------------------ | -------------------------- | ---------------------------------------------------- |
+| Voting Delay       | 3600 (1 hour)             | Time before voting starts after proposal creation    |
+| Voting Period      | 432000 (5 days)           | Duration of the voting phase                         |
+| Proposal Threshold | 50k tokens (18 decimals)  | Minimum tokens needed to create a proposal           |
+| Quorum             | 30%                       | Minimum participation required for proposal validity |
+| Timelock Delay     | 1 hour                    | Minimum delay before executing approved proposals    |
 
 ## Dependencies
 
