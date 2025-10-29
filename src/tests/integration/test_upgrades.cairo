@@ -442,7 +442,7 @@ fn test_it_upg_003_unauthorized_governor_upgrade() {
 }
 
 #[test]
-#[should_panic(expected: ('Governor Controller only',))]
+#[should_panic(expected: ('Timelock: unauthorized caller',))]
 fn test_it_upg_004_unauthorized_controller_upgrade() {
     // Deploy all contracts
     let (_, timelock, _) = deploy_full_governance();

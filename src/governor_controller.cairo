@@ -5,7 +5,7 @@ mod SurvivorGovernorController {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
-    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
+    use starknet::{ClassHash, ContractAddress};
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
     component!(path: TimelockControllerComponent, storage: timelock, event: TimelockEvent);
@@ -60,7 +60,7 @@ mod SurvivorGovernorController {
     #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-            assert(get_contract_address() == get_caller_address(), 'Governor Controller only');
+            self.timelock.assert_only_self();
             // Replace the class hash upgrading the contract
             self.upgradeable.upgrade(new_class_hash);
         }
