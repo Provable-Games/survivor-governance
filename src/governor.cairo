@@ -11,7 +11,9 @@ pub mod SurvivorGovernor {
     use openzeppelin_governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
-    use starknet::ContractAddress;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
+    use starknet::{ClassHash, ContractAddress};
 
     pub const VOTING_DELAY: u64 = 3600; // 1 hour
     pub const VOTING_PERIOD: u64 = 432000; // 5 days
@@ -38,6 +40,7 @@ pub mod SurvivorGovernor {
         event: GovernorTimelockExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     // Governor
     #[abi(embed_v0)]
@@ -67,6 +70,9 @@ pub mod SurvivorGovernor {
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
+    // Upgradeable
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
+
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -81,6 +87,8 @@ pub mod SurvivorGovernor {
         pub governor_timelock_execution: GovernorTimelockExecutionComponent::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[event]
@@ -98,6 +106,8 @@ pub mod SurvivorGovernor {
         GovernorTimelockExecutionEvent: GovernorTimelockExecutionComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
+        #[flat]
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[constructor]
@@ -108,6 +118,15 @@ pub mod SurvivorGovernor {
         self.governor_votes.initializer(votes_token, QUORUM_NUMERATOR);
         self.governor_settings.initializer(VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD);
         self.governor_timelock_execution.initializer(timelock_controller);
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            self.governor_timelock_execution.assert_only_governance();
+            // Replace the class hash upgrading the contract
+            self.upgradeable.upgrade(new_class_hash);
+        }
     }
 
     //

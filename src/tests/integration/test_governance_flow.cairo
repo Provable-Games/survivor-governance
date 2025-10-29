@@ -389,8 +389,27 @@ fn test_it_003_parameter_update_flow() {
 
     assert(gov.state(proposal_id) == ProposalState::Succeeded, 'Update should succeed');
 
+    // Queue the proposal
+    let description_hash = description.hash();
+    start_cheat_caller_address(governor, ALICE());
+    gov.queue(calls.span(), description_hash);
+    stop_cheat_caller_address(governor);
+
+    // Fast forward past timelock delay
+    let execution_time = voting_end_time + MIN_DELAY + 2;
+    start_cheat_block_timestamp(governor, execution_time);
+    start_cheat_block_timestamp(timelock, execution_time);
+    start_cheat_block_timestamp(token, execution_time);
+
+    // Execute the proposal
+    gov.execute(calls.span(), description_hash);
+
+    // Verify execution
+    assert(gov.state(proposal_id) == ProposalState::Executed, 'Should be executed');
+
     stop_cheat_block_timestamp(governor);
     stop_cheat_block_timestamp(token);
+    stop_cheat_block_timestamp(timelock);
 }
 
 #[test]

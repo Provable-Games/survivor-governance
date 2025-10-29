@@ -3,17 +3,23 @@ mod SurvivorGovernorController {
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_governance::timelock::TimelockControllerComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
+    use starknet::{ClassHash, ContractAddress, get_caller_address, get_contract_address};
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
     component!(path: TimelockControllerComponent, storage: timelock, event: TimelockEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     // Timelock Mixin
     #[abi(embed_v0)]
     impl TimelockMixinImpl =
         TimelockControllerComponent::TimelockMixinImpl<ContractState>;
     impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
+
+    // Upgradeable
+    impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
@@ -23,6 +29,8 @@ mod SurvivorGovernorController {
         timelock: TimelockControllerComponent::Storage,
         #[substorage(v0)]
         src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]
@@ -34,6 +42,8 @@ mod SurvivorGovernorController {
         TimelockEvent: TimelockControllerComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event,
+        #[flat]
+        UpgradeableEvent: UpgradeableComponent::Event
     }
 
     #[constructor]
@@ -45,5 +55,14 @@ mod SurvivorGovernorController {
         admin: ContractAddress,
     ) {
         self.timelock.initializer(min_delay, proposers, executors, admin);
+    }
+
+    #[abi(embed_v0)]
+    impl UpgradeableImpl of IUpgradeable<ContractState> {
+        fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+            assert(get_contract_address() == get_caller_address(), 'Governor Controller only');
+            // Replace the class hash upgrading the contract
+            self.upgradeable.upgrade(new_class_hash);
+        }
     }
 }
